@@ -1,0 +1,22 @@
+State space:
+Altitude
+Velocity
+Removed fuel to reduce state space
+rotation
+//does not rely on hardcoded position, fixed state space for any map size!
+Include x to prevent going off edges
+Decreased window size to reduce state space
+
+Actions:
+turn left
+turn right
+accelerate
+
+Value function:
++100 for landing x multiplier for quality
+-100 for crashing
+-1 for living
+
+modifications to game:
+remove fixed framerate (faster learning)
+wait for AI move between each frame

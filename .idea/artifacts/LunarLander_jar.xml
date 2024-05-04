@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="LunarLander:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/LunarLander_jar</output-path>
+    <root id="archive" name="LunarLander.jar">
+      <element id="module-output" name="LunarLander" />
+    </root>
+  </artifact>
+</component>
