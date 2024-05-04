@@ -36,7 +36,8 @@ public class ApproximateAgent extends Agent{
     public void transition(State state, Action action, State nextState, float reward) {
         update(state, action, nextState, reward);
         if(nextState.terminalState) {
-            episodes++;
+//            if(reward > 0)
+                episodes++;
             System.out.println("episode: " + episodes + " " + getWeights());
         }
     }

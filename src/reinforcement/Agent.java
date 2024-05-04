@@ -6,10 +6,10 @@ public class Agent {
     //Exploration prob
     public float epsilon = 0.05f;
     //learning rate
-    public float alpha = 0.001f;
+    public float alpha = 0.025f;
     //discount rate
     public float gamma = 0.01f;
-    public int trainingEpisodes = 100;
+    public int trainingEpisodes = 2000;
 
     public static void main(String[] args) {
         game.Game.main(new String[]{"--ai-agent"});
@@ -21,7 +21,7 @@ public class Agent {
 
     public float computeValueFromQValues(State state){
         float bestQ = Float.NEGATIVE_INFINITY;
-        for (Action action : getLegalActions(state)){;
+        for (Action action : getLegalActions(state)){
             bestQ = Math.max(getQValue(state, action), bestQ);
         }
         if(Float.isInfinite(bestQ))
@@ -61,7 +61,7 @@ public class Agent {
         if(state.fuel > 0)
             return Action.values();
 
-        return new Action[]{Action.TURN_RIGHT, Action.TURN_LEFT};
+        return new Action[]{Action.TURN_RIGHT, Action.TURN_LEFT, Action.NO_ACTION};
     }
 
     public void transition(State state, Action action, State nextState, float reward){

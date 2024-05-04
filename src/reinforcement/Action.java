@@ -3,5 +3,6 @@ package reinforcement;
 public enum Action {
     TURN_LEFT,
     TURN_RIGHT,
-    ACCELERATE
+    ACCELERATE,
+    NO_ACTION
 }

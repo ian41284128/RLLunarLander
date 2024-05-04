@@ -18,8 +18,8 @@ public class Game extends JPanel implements ActionListener, KeyListener
 
    static final Set<Integer> pressed = new HashSet<Integer>();
 
-   public static final int WINDOW_WIDTH = 100;
-   public static final int WINDOW_HEIGHT = 100;
+   public static final int WINDOW_WIDTH = 300;
+   public static final int WINDOW_HEIGHT = 300;
    
    static final int FRAMERATE = 1;
    
@@ -35,8 +35,8 @@ public class Game extends JPanel implements ActionListener, KeyListener
    static final int SIN2_AMPLITUDE = 40;
    static final double NOISE_AMPLITUDE = 20d;
    
-   static final double GRAVITY = 0.002;
-   static final int LANDING_SPEED = 30;
+   public static final double GRAVITY = 0.002;
+   public static final int LANDING_SPEED = 30;
    
    static String[][] landingMessages = new String[][] {new String[] {"THAT LOOKED EXPENSIVE", "THAT LANDER COST 100 MEGABUCKS", "YOU JUST MADE A 2 KILOMETER WIDE CRATER", "SWEET JESUS ARE THOSE ASTRONAUTS OKAY"}, 
                                                         new String[] {"LANDED", "PASSABLE LANDING", "YOU HAVE ACHIEVED TOUCHDOWN"}, 
@@ -75,7 +75,7 @@ public class Game extends JPanel implements ActionListener, KeyListener
 
       game.addKeyListener(game);
       if(args.length > 0 && args[0].equals("--ai-agent")){
-         agent = new Agent();
+         agent = new ApproximateAgent();
          frame.setVisible(false);
          while(agent.episodes < agent.trainingEpisodes)
             game.tick();
@@ -363,7 +363,7 @@ public class Game extends JPanel implements ActionListener, KeyListener
          //x is evenly distributed across screen
          double x = (i-1d) / (points.length-2d) * WINDOW_WIDTH;
          //y generation: Base height + sin wave + second wave with smaller influence + randomness
-         double y = BASE_HEIGHT + Math.sin(x / SIN1_SCALE + seed1) * SIN2_AMPLITUDE + Math.sin(x / SIN2_SCALE + seed2) * SIN2_AMPLITUDE + Math.random() * NOISE_AMPLITUDE;
+         double y = BASE_HEIGHT;// + Math.sin(x / SIN1_SCALE + seed1) * SIN2_AMPLITUDE + Math.sin(x / SIN2_SCALE + seed2) * SIN2_AMPLITUDE + Math.random() * NOISE_AMPLITUDE;
          
          points[i] = new int[] {(int)x, (int)y};
       }

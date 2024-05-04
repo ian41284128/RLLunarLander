@@ -1,12 +1,14 @@
 State space:
+fuel, x, y, dx, dy, angle (for fixed map)
+Removed fuel to reduce state space
+Decreased window size to reduce state space
+
+//Translate state space into qualitative values, no raw data
+Features:
 Altitude
 Velocity
-	Change to dx dy
-Removed fuel to reduce state space
 rotation
-//does not rely on hardcoded position, fixed state space for any map size!
-Include x to prevent going off edges
-Decreased window size to reduce state space
+feature values must be =< 1
 
 Actions:
 turn left
@@ -16,7 +18,7 @@ accelerate
 Value function:
 +100 for landing x multiplier for quality
 -100 for crashing
--1 for living
+-1 for living? +1 for living? No time horizon?
 
 modifications to game:
 remove fixed framerate (faster learning)
@@ -25,3 +27,4 @@ wait for AI move between each frame
 Made reward for living positive, because landing is too hard
 Specific goals are hard.
 Stay alive > land facing upwards, at a slow enough speed
+

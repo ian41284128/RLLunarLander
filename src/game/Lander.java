@@ -10,8 +10,8 @@ public class Lander
 {   
    final static int RADIUS = 6;
    
-   final static double ROTATION_SPEED = 0.1;
-   final static double ACCEL = 0.006;
+   public final static double ROTATION_SPEED = 0.1;
+   public final static double ACCEL = 0.006;
 
    public double x, y;
    public double dx, dy;
