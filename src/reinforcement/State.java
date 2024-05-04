@@ -1,26 +1,39 @@
 package reinforcement;
 
+import game.Game;
+
 import java.util.Arrays;
 
 public class State {
-    public int altitude;
-    public int velocity;
     public int fuel;
     public int rotation;
     public int x;
+    public int y;
+    public int dx;
+    public int dy;
+    public boolean terminalState = false;
+    public boolean goalStateReached = false;
+    public static long stateSpaceSize = (long) Game.WINDOW_HEIGHT * Game.WINDOW_WIDTH * 360 * 200;
 
-    public State(float altitude, float velocity, float fuel, float angle, double x){
-        this.altitude = (int) altitude;
-        this.velocity = (int) velocity;
+    public State(float x, float y, float dx, float dy, float fuel, float angle){
         this.fuel = (int) fuel;
         this.rotation = (int) angle;
         this.x = (int)x;
+        this.y = (int)y;
+        this.dx = (int)dx;
+        this.dy = (int)dy;
+    }
 
-
+    public State(boolean won){
+        terminalState = true;
+        this.goalStateReached = won;
     }
 
     protected int[] getValues(){
-        return new int[]{altitude, velocity, rotation, x};
+        if(terminalState){
+            return new int[]{goalStateReached ? 1 : 0};
+        }
+        return new int[]{x, y, dx, dy, rotation};
     }
 
     @Override
@@ -30,6 +43,8 @@ public class State {
 
     @Override
     public String toString() {
-        return String.format("(a:%d v:%d r:%d)", altitude, velocity, rotation);
+        if(terminalState)
+            return goalStateReached ? "WIN_STATE" : "LOSE_STATE";
+        return String.format("(x:%d y:%d dx:%d, dy:%d rot:%d)", x, y, dx, dy, rotation);
     }
 }

@@ -2,12 +2,14 @@ package reinforcement;
 
 public class Agent {
     Counter<Tuple<State, Action>> Q = new Counter<>();
+    public int episodes = 0;
     //Exploration prob
-    public float epsilon = 0.3f;
+    public float epsilon = 0.05f;
     //learning rate
-    public float alpha = 0.6f;
+    public float alpha = 0.001f;
     //discount rate
-    public float gamma = 0.5f;
+    public float gamma = 0.01f;
+    public int trainingEpisodes = 100;
 
     public static void main(String[] args) {
         game.Game.main(new String[]{"--ai-agent"});
@@ -53,16 +55,6 @@ public class Agent {
     public void update(State state, Action action, State nextState, float reward){
         float sample = reward + gamma * computeValueFromQValues(nextState);
         Q.put(state, action, (1-alpha) * getQValue(state, action) + alpha * sample);
-
-        if(reward > 0)
-            System.out.println("\u001B[32m");
-        else if(reward < 0)
-            System.out.println("\u001B[31m");
-        System.out.println("Started in state: " + state);
-        System.out.println("Took action: " + action);
-        System.out.println("Ended in state: " + nextState);
-        System.out.println("Got reward: " + reward);
-        System.out.println("\u001B[0m");
     }
 
     public Action[] getLegalActions(State state){
@@ -70,5 +62,14 @@ public class Agent {
             return Action.values();
 
         return new Action[]{Action.TURN_RIGHT, Action.TURN_LEFT};
+    }
+
+    public void transition(State state, Action action, State nextState, float reward){
+        update(state, action, nextState, reward);
+        if(nextState.terminalState){
+            if(reward > 0)
+                episodes++;
+            System.out.println("Episode " + episodes + ": " + (((float)Q.size()/State.stateSpaceSize)*100));
+        }
     }
 }

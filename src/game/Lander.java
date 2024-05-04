@@ -13,9 +13,8 @@ public class Lander
    final static double ROTATION_SPEED = 0.1;
    final static double ACCEL = 0.006;
 
-   double x, y;
-   double dx;
-   double dy;
+   public double x, y;
+   public double dx, dy;
    double rotation = Math.PI / 2;
    
    int footX, footY, foot2X, foot2Y = 0;

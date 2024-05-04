@@ -23,4 +23,12 @@ public class Tuple<State, Action> {
     public int hashCode() {
         return Objects.hash(state, action);
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "state=" + state +
+                ", action=" + action +
+                '}';
+    }
 }

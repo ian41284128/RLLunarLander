@@ -2,6 +2,7 @@ package game;
 
 import reinforcement.Action;
 import reinforcement.Agent;
+import reinforcement.ApproximateAgent;
 import reinforcement.State;
 
 import java.awt.*;
@@ -13,10 +14,12 @@ import java.util.HashSet;
 
 public class Game extends JPanel implements ActionListener, KeyListener
 {
+   public static Game game;
+
    static final Set<Integer> pressed = new HashSet<Integer>();
 
-   static final int WINDOW_WIDTH = 500;
-   static final int WINDOW_HEIGHT = 300;
+   public static final int WINDOW_WIDTH = 100;
+   public static final int WINDOW_HEIGHT = 100;
    
    static final int FRAMERATE = 1;
    
@@ -40,7 +43,7 @@ public class Game extends JPanel implements ActionListener, KeyListener
                                                         new String[] {"PERFECT LANDING", "PERFECTION", "EXCEPTIONAL LANDING", "COMPLETE SUCCESS", "THIS WAS A TRIUMPH"}
                                                         };
    
-   static Lander lander;
+   public static Lander lander;
    static Polygon ground;
 
    static int[][] stars;
@@ -63,21 +66,29 @@ public class Game extends JPanel implements ActionListener, KeyListener
     */
    public static void main(String[] args)
    {      
-      Game game = new Game();
+      game = new Game();
       
       JFrame frame = new JFrame("Lunar game.Lander");
       frame.getContentPane().add( game );
       frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
       frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-      frame.setVisible(true);
 
       game.addKeyListener(game);
       if(args.length > 0 && args[0].equals("--ai-agent")){
          agent = new Agent();
+         frame.setVisible(false);
+         while(agent.episodes < agent.trainingEpisodes)
+            game.tick();
+         main(new String[]{""});
+      } else {
+         frame.setVisible(true);
+         if(agent != null){
+            agent.epsilon = 0;
+            agent.alpha = 0;
+         }
+         Timer clock = new Timer(FRAMERATE, game);
+         clock.start();
       }
-
-      Timer clock = new Timer(FRAMERATE, game);			
-      clock.start();
    }
    
    /**
@@ -97,6 +108,13 @@ public class Game extends JPanel implements ActionListener, KeyListener
     */
    public void actionPerformed(ActionEvent e)
    {
+      tick();
+      if(SwingUtilities.getWindowAncestor(this).isVisible()) {
+         repaint();
+      }
+   }
+
+   public void tick(){
       //Time should only increase when a game is being played.
       if(gameOver && agent != null){
          startGame();
@@ -120,19 +138,22 @@ public class Game extends JPanel implements ActionListener, KeyListener
             }
          }
       }
-
-      State state = new State(getAltitude(), getVelocity(), getFuel(), getAngleDeg(), lander.x);
-      Action action = agent.getAction(state);
+      State state = null;
+      Action action = null;
       if(agent != null){
+         state = new State((float)lander.x, (float)lander.y, (float)lander.dx, (float)lander.dy, getFuel(), getAngleDeg());
+         action = agent.getAction(state);
          lander.control(action);
       }
-   
+
       lander.move();
 
-      State statePrime = new State(getAltitude(), getVelocity(), getFuel(), getAngleDeg(), lander.x);
-      agent.update(state, action, statePrime, getReward());
-
-      repaint();
+      if(agent != null) {
+         State statePrime = gameOver ?
+                 new State(getReward() > 0) :
+                 new State((float)lander.x, (float)lander.y, (float)lander.dx, (float)lander.dy, getFuel(), getAngleDeg());
+         agent.transition(state, action, statePrime, getReward());
+      }
    }
 
    public float getReward(){
@@ -144,7 +165,7 @@ public class Game extends JPanel implements ActionListener, KeyListener
          }
          return -100;
       }
-      return -1;
+      return 0;
    }
 
    /**
@@ -437,10 +458,11 @@ public class Game extends JPanel implements ActionListener, KeyListener
       }
       
       //regenerate terrain, stars, score positions
-      groundPoints = new int[GROUND_RES][2];
-      scores = new Score[SCORE_COUNT];
-      ground = generateGround(groundPoints);
-      
+      if(ground == null) {
+         scores = new Score[SCORE_COUNT];
+         groundPoints = new int[GROUND_RES][2];
+         ground = generateGround(groundPoints);
+      }
       stars = new int[STAR_COUNT][2];
       generateStars(stars);
       
