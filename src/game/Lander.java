@@ -34,7 +34,7 @@ public class Lander
       this.x = x;
       this.y = y;
       //Start lander with a bit of horizontal momentum so it moves into screen
-      dx = 0.5;
+      dx = 0;//0.5;
       dy = 0;
    }
    
@@ -47,15 +47,15 @@ public class Lander
       Game.startGame = false;
       if(!Game.gameOver)
       {
-         if(e == Action.ACCELERATE)
+         if(e == Action.ACCELERATE || e == Action.TURN_L_ACCEL || e == Action.TURN_R_ACCEL)
          {
             throttle();
          }
-         else if(e == Action.TURN_LEFT)
+         if(e == Action.TURN_LEFT || e == Action.TURN_L_ACCEL)
          {
             rotate(-1);
          }
-         else if(e == Action.TURN_RIGHT)
+         if(e == Action.TURN_RIGHT || e == Action.TURN_R_ACCEL)
          {
             rotate(1);
          }
@@ -69,9 +69,12 @@ public class Lander
    {
       if(fuel > 0)
       {
+         thrusting = true;
          dy -= Math.sin(rotation) * ACCEL;
          dx -= Math.cos(rotation) * ACCEL;
          fuel -= 0.6;
+      } else {
+         thrusting = false;
       }
    }
    
@@ -88,11 +91,11 @@ public class Lander
     * Moves the ship if the game hasn't ended yet.
     */
    public void move()
-   {   
-      if(Game.pressed.contains((int)(KeyEvent.VK_UP)))
-         thrusting = true;
-      else
-         thrusting = false;
+   {
+//      if(Game.pressed.contains((int)(KeyEvent.VK_UP)))
+//         thrusting = true;
+//      else
+//         thrusting = false;
    
       //Freeze if game has ended
       if(!Game.gameOver && !Game.startGame)
@@ -160,6 +163,7 @@ public class Lander
          g.drawLine(getLegX(RADIUS, 0.5), getLegY(RADIUS, 0.5), firePointX, firePointY);
          g.drawLine(getLegX(RADIUS, -0.5), getLegY(RADIUS, -0.5), firePointX, firePointY);
       }
+      thrusting = false;
    }
    
    /**

@@ -8,6 +8,7 @@ import reinforcement.State;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.Random;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -18,14 +19,14 @@ public class Game extends JPanel implements ActionListener, KeyListener
 
    static final Set<Integer> pressed = new HashSet<Integer>();
 
-   public static final int WINDOW_WIDTH = 300;
-   public static final int WINDOW_HEIGHT = 300;
+   public static final int WINDOW_WIDTH = 800;
+   public static final int WINDOW_HEIGHT = 500;
    
    static final int FRAMERATE = 1;
    
    static final int STAR_COUNT = 50;
-   static final int SCORE_COUNT = 4;
-   static final int GROUND_RES = (int)(WINDOW_WIDTH / 5);
+   static final int SCORE_COUNT = 8;
+   static final int GROUND_RES = WINDOW_WIDTH / 5;
    
    //TERRAIN GENERATION SETTINGS
    static final int BASE_HEIGHT = (int)(WINDOW_HEIGHT * 2d/3d);
@@ -48,7 +49,7 @@ public class Game extends JPanel implements ActionListener, KeyListener
 
    static int[][] stars;
    static int[][] groundPoints;
-   static Score[] scores;
+   public static Score[] scores;
    static boolean gameOver = false;
    static boolean startGame = true;
    static boolean startOver = false;
@@ -83,8 +84,8 @@ public class Game extends JPanel implements ActionListener, KeyListener
       } else {
          frame.setVisible(true);
          if(agent != null){
-            agent.epsilon = 0;
-            agent.alpha = 0;
+            //agent.epsilon = 0;
+            //agent.alpha = 0;
          }
          Timer clock = new Timer(FRAMERATE, game);
          clock.start();
@@ -150,22 +151,10 @@ public class Game extends JPanel implements ActionListener, KeyListener
 
       if(agent != null) {
          State statePrime = gameOver ?
-                 new State(getReward() > 0) :
+                 new State(getPoints() > 0) :
                  new State((float)lander.x, (float)lander.y, (float)lander.dx, (float)lander.dy, getFuel(), getAngleDeg());
-         agent.transition(state, action, statePrime, getReward());
+         agent.transition(state, action, statePrime);
       }
-   }
-
-   public float getReward(){
-      if(gameOver){
-         if(getAltitude() > 0)
-            return -100;
-         if(getLandingMessage() > 0){
-            return 100;
-         }
-         return -100;
-      }
-      return 0;
    }
 
    /**
@@ -174,12 +163,12 @@ public class Game extends JPanel implements ActionListener, KeyListener
    @Override
    public synchronized void keyPressed(KeyEvent e) 
    {
-      if(lander.fuel <= 0 && startOver && pressed.size() == 0)
+      /*if(lander.fuel <= 0 && startOver && pressed.size() == 0)
       {
          startGame = true;
          gameOver = false;
-      }
-      else if(startOver && pressed.size() == 0)
+      }*/
+      if(startOver && pressed.size() == 0)
       {
          startGame();
       }
@@ -292,12 +281,8 @@ public class Game extends JPanel implements ActionListener, KeyListener
       return (int) Lander.fuel;
    }
 
-   public int getVelocity(){
-      return (int)(lander.dx * 100f);
-   }
-
    public int getAngleDeg(){
-      return (int)Math.toDegrees(lander.rotation) % 360;
+      return (int)Math.toDegrees(lander.rotation);
    }
 
    /**
@@ -363,7 +348,7 @@ public class Game extends JPanel implements ActionListener, KeyListener
          //x is evenly distributed across screen
          double x = (i-1d) / (points.length-2d) * WINDOW_WIDTH;
          //y generation: Base height + sin wave + second wave with smaller influence + randomness
-         double y = BASE_HEIGHT;// + Math.sin(x / SIN1_SCALE + seed1) * SIN2_AMPLITUDE + Math.sin(x / SIN2_SCALE + seed2) * SIN2_AMPLITUDE + Math.random() * NOISE_AMPLITUDE;
+         double y = BASE_HEIGHT + Math.sin(x / SIN1_SCALE + seed1) * SIN2_AMPLITUDE + Math.sin(x / SIN2_SCALE + seed2) * SIN2_AMPLITUDE + Math.random() * NOISE_AMPLITUDE;
          
          points[i] = new int[] {(int)x, (int)y};
       }
@@ -458,16 +443,16 @@ public class Game extends JPanel implements ActionListener, KeyListener
       }
       
       //regenerate terrain, stars, score positions
-      if(ground == null) {
-         scores = new Score[SCORE_COUNT];
-         groundPoints = new int[GROUND_RES][2];
-         ground = generateGround(groundPoints);
-      }
+      scores = new Score[SCORE_COUNT];
+      groundPoints = new int[GROUND_RES][2];
+      ground = generateGround(groundPoints);
       stars = new int[STAR_COUNT][2];
       generateStars(stars);
       
       //spawn the lander
-      lander = new Lander(lander.RADIUS, WINDOW_HEIGHT / 3);
+      lander = new Lander((int)(Math.random() * (WINDOW_WIDTH-100)) + 50, WINDOW_HEIGHT / 3);
+      lander.dy = Math.random() * 2 - 1;
+      lander.dx = Math.random() * 2 - 1;
    }
    
    /**
@@ -534,11 +519,13 @@ public class Game extends JPanel implements ActionListener, KeyListener
    static int getLandingMessage()
    {
       int landingScore;
-      if(lander.rotation > 0 && lander.rotation < 2.5)
+      if(!lander.isGrounded(ground))
+         landingScore = 0;
+      else if(lander.rotation > 0 && lander.rotation < 2.5)
       {
-         if(Math.abs(lander.dy) * 100 < LANDING_SPEED * 0.5)
+         if(lander.dy * 100 < LANDING_SPEED * 0.5)
             landingScore = 2;
-         else if(Math.abs(lander.dy) * 100 < LANDING_SPEED)
+         else if(lander.dy * 100 < LANDING_SPEED)
             landingScore = 1;
          else
             landingScore = 0;
@@ -547,7 +534,6 @@ public class Game extends JPanel implements ActionListener, KeyListener
       {
          landingScore = 0;
       }
-      
       return landingScore;
    }
    
@@ -557,23 +543,33 @@ public class Game extends JPanel implements ActionListener, KeyListener
     */
    static String getPointsMessage()
    {
+      int points = getPoints();
+      score += points;
+      switch (points){
+         case 0:
+            return "TIP: THE LANDING LEGS ARE ON THE OTHER SIDE OF THE LANDER";
+         case 50:
+            return "50 POINTS (DID NOT LAND IN DESIGNATED AREA)";
+         default:
+            return "GOT " + points + " POINTS";
+      }
+   }
+
+   public static int getPoints(){
       for(Score s : scores)
       {
          if(s.landed((int)lander.x))
          {
-            int points = getLandingMessage() * 100 * s.score;
-            score += points;
-            return "GOT " + points + " POINTS";
+            return getLandingMessage() * 100 * s.score;
          }
       }
       if(getLandingMessage() > 0)
       {
-         score += 50;
-         return "50 POINTS (DID NOT LAND IN DESIGNATED AREA)";
+         return 50;
       }
       else
       {
-         return "TIP: THE LANDING LEGS ARE ON THE OTHER SIDE OF THE LANDER";
+         return 0;
       }
    }
    

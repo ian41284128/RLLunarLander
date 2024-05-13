@@ -28,3 +28,15 @@ Made reward for living positive, because landing is too hard
 Specific goals are hard.
 Stay alive > land facing upwards, at a slow enough speed
 
+
+epsilon 0.05
+alpha 0.5
+gamma 0.5
+
+6000 episodes, occasionally positive averages
+
+alpha -> 0.1, 100% win rate in 1000 episodes
+
+It optimized so that it would be moving just slightly downwards the frame it was outside of bounds, to satisfy a perfect landing. At it did this 100% of the time.
+
+discount is kind of like, how far can it see into the future. Because robot has velocity, if it's going too fast, and discount is too high, it won't see far enough to know it's already going to die 100%.	

@@ -16,7 +16,7 @@ public class Tuple<State, Action> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Tuple<?, ?> tuple = (Tuple<?, ?>) o;
-        return Objects.equals(state, tuple.state) && Objects.equals(action, tuple.action);
+        return tuple.state.equals(state) && tuple.action.equals(action);
     }
 
     @Override

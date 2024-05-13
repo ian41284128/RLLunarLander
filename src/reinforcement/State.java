@@ -20,8 +20,8 @@ public class State {
         this.rotation = (int) angle;
         this.x = (int)x;
         this.y = (int)y;
-        this.dx = (int)dx;
-        this.dy = (int)dy;
+        this.dx = (int)(dx*1000);
+        this.dy = (int)(dy*1000);
     }
 
     public State(boolean won){
@@ -46,5 +46,13 @@ public class State {
         if(terminalState)
             return goalStateReached ? "WIN_STATE" : "LOSE_STATE";
         return String.format("(x:%d y:%d dx:%d, dy:%d rot:%d)", x, y, dx, dy, rotation);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        State state = (State) o;
+        return fuel == state.fuel && rotation == state.rotation && x == state.x && y == state.y && dx == state.dx && dy == state.dy && terminalState == state.terminalState && goalStateReached == state.goalStateReached;
     }
 }

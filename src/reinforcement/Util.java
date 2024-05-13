@@ -12,7 +12,7 @@ public class Util {
     }
 
     public static boolean flipCoin(float p){
-        return getRandom().nextFloat() <= p;
+        return getRandom().nextFloat() < p;
     }
 
     public static boolean flipCoin(){
@@ -23,5 +23,9 @@ public class Util {
         if(seq.length == 0)
             throw new IllegalStateException("Array cannot be empty.");
         return seq[getRandom().nextInt(seq.length)];
+    }
+
+    public static float dist(float x1, float y1, float x2, float y2){
+        return (float)Math.abs(Math.sqrt(Math.pow(x1-x2,2) + Math.pow(y1-y2,2)));
     }
 }

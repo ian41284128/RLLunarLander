@@ -2,8 +2,8 @@ package game;
 
 public class Score
 {
-   static final int MIN_LENGTH = 6;
-   static final int MAX_SCORE = 6;
+   static final int MIN_LENGTH = 10;
+   static final int MAX_SCORE = 4;
 
    public int x;
    public int y;
